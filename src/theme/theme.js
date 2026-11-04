@@ -1,3 +1,22 @@
+export const colors = {
+  primary: '#000000',
+  primaryText: '#FFFFFF',
+  secondary: '#276EF1',
+  background: '#F6F7F9',
+  surface: '#FFFFFF',
+  card: '#FFFFFF',
+  text: '#111827',
+  textSecondary: '#6B7280',
+  textMuted: '#9CA3AF',
+  border: '#E5E7EB',
+  borderFocus: '#000000',
+  error: '#DC2626',
+  errorLight: '#FEE2E2',
+  success: '#16A34A',
+  disabled: '#E5E7EB',
+  disabledText: '#9CA3AF',
+};
+
 export const spacing = {
   xs: 4,
   sm: 8,

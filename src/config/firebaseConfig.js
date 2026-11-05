@@ -16,8 +16,7 @@ const firebaseConfig = {
   measurementId: "G-PM534PHXBV"
 };
 
-// Initialize Firebase (reuse the app on Fast Refresh to avoid "app already exists" errors)
-// AI-assisted: see docs/AI_LOG.md #5
+// Initialize Firebase
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);

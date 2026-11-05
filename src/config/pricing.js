@@ -1,9 +1,3 @@
-// AI-assisted: see docs/AI_LOG.md #6
-
-/**
- * Single source of truth for fare calculation and platform commission.
- * All monetary values are integer Colombian Pesos (COP) to avoid decimal errors.
- */
 export const PRICING_CONFIG = {
   baseFare: 3500,
   perKmRate: 1200,

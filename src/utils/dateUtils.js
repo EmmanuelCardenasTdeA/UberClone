@@ -1,4 +1,4 @@
-// AI-assisted: see docs/AI_LOG.md #6
+// AI-assisted: see docs/AI_LOG.md #2
 
 const ISO_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/;
 

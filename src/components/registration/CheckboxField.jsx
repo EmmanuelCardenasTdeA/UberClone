@@ -1,4 +1,3 @@
-// AI-assisted: see docs/AI_LOG.md #6
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,10 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import FieldMessage from './FieldMessage';
 import { colors, radius, spacing, typography } from '../../theme';
 
-/**
- * Reusable checkbox field with error message below the component.
- * Used for terms & commission acceptance in Tab 3.
- */
 export default function CheckboxField({
   label,
   description,

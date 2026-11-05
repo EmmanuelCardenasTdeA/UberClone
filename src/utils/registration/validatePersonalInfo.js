@@ -1,4 +1,4 @@
-// AI-assisted: see docs/AI_LOG.md #5
+// AI-assisted: see docs/AI_LOG.md #2
 import { GENDER_OPTIONS, MIN_DRIVER_AGE } from '../../data/registrationOptions.js';
 import { calculateAge, parseLocalDate } from '../dateUtils.js';
 

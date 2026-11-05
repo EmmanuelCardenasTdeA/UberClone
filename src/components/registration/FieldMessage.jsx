@@ -1,11 +1,9 @@
-// AI-assisted: see docs/AI_LOG.md #5
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { colors, spacing, typography } from '../../theme';
 
-/** Label shown above every registration field (adds a red * when required). */
 export function FieldLabel({ label, required }) {
   if (!label) return null;
   return (
@@ -16,7 +14,6 @@ export function FieldLabel({ label, required }) {
   );
 }
 
-/** Error (or helper text) shown BELOW the field. Alerts are not allowed by the spec. */
 export default function FieldMessage({ error, helperText }) {
   if (error) {
     return (

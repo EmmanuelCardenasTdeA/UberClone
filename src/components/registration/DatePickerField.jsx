@@ -1,4 +1,3 @@
-// AI-assisted: see docs/AI_LOG.md #5
 import React, { useCallback, useState } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
@@ -8,11 +7,6 @@ import FieldMessage, { FieldLabel } from './FieldMessage';
 import { formatDisplayDate, parseLocalDate, toIsoDateString } from '../../utils/dateUtils';
 import { colors, radius, shadows, spacing, typography } from '../../theme';
 
-/**
- * Date selector with error message below the field.
- * `value` and `onChange` use the `YYYY-MM-DD` format.
- * Android uses the native dialog; iOS shows a spinner inside a modal.
- */
 export default function DatePickerField({
   label,
   value,

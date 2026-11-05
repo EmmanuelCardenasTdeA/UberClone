@@ -1,14 +1,7 @@
-// AI-assisted: see docs/AI_LOG.md #6
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-  DOCUMENTS_INFO_FIELDS,
-  initialDocumentsInfo,
-  initialPersonalInfo,
-  initialVehicleInfo,
-  PERSONAL_INFO_FIELDS,
-  VEHICLE_INFO_FIELDS,
-} from '../data/registrationData';
+import { DOCUMENTS_INFO_FIELDS, initialDocumentsInfo, initialPersonalInfo, initialVehicleInfo, 
+  PERSONAL_INFO_FIELDS, VEHICLE_INFO_FIELDS,} from '../data/registrationData';
 import { REGISTRATION_STATUS } from '../data/registrationOptions';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 import { USE_FIREBASE_STORAGE } from '../config/appConfig';
@@ -16,19 +9,13 @@ import { PLATFORM_COMMISSION_RATE } from '../config/pricing';
 import { validatePersonalInfo } from '../utils/registration/validatePersonalInfo';
 import { validateVehicleInfo } from '../utils/registration/validateVehicleInfo';
 import { validateDocumentsInfo } from '../utils/registration/validateDocumentsInfo';
-import {
-  findDriverByLicensePlate,
-  getDriver,
-  removeDriver,
-  saveDriver,
-  subscribeToDriver,
-} from '../services/driverService';
+import { findDriverByLicensePlate, getDriver, removeDriver, saveDriver,
+  subscribeToDriver } from '../services/driverService';
 import { getDriverImagePath, uploadImage } from '../services/imageStorageService';
 import { getData, removeData, saveData } from '../services/localStorageService';
 
 export const DriverRegistrationContext = createContext(null);
 
-/** Normalizes form values before saving them in Firestore. */
 const buildDriverPayload = (personalInfo, vehicleInfo, documentsInfo) => ({
   personalInfo: {
     ...personalInfo,
@@ -52,7 +39,6 @@ const buildDriverPayload = (personalInfo, vehicleInfo, documentsInfo) => ({
   },
 });
 
-/** Converts the Firestore document back into form values (strings). */
 const mapDriverToForms = (driver) => ({
   personalInfo: { ...initialPersonalInfo, ...driver.personalInfo },
   vehicleInfo: {

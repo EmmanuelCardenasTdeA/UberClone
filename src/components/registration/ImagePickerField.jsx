@@ -1,4 +1,3 @@
-// AI-assisted: see docs/AI_LOG.md #5
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -20,10 +19,6 @@ const SOURCES = {
   },
 };
 
-/**
- * Photo field: camera or gallery, preview and error below the field.
- * Permission problems are shown as field errors (no Alert).
- */
 export default function ImagePickerField({
   label,
   value,
@@ -32,7 +27,7 @@ export default function ImagePickerField({
   error,
   helperText,
   aspect = [4, 3],
-  shape = 'rectangle', // 'rectangle' | 'circle'
+  shape = 'rectangle',
   required = false,
 }) {
   const [pickerError, setPickerError] = useState('');

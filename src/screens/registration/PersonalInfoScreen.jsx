@@ -1,14 +1,5 @@
-// AI-assisted: see docs/AI_LOG.md #5
 import React from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -24,15 +15,7 @@ import { colors, radius, shadows, spacing, typography } from '../../theme';
 
 export default function PersonalInfoScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const {
-    personalInfo,
-    personalInfoErrors,
-    isPersonalInfoValid,
-    touchedFields,
-    updatePersonalInfo,
-    touchField,
-    touchFields,
-  } = useDriverRegistration();
+  const { personalInfo, personalInfoErrors, isPersonalInfoValid, touchedFields, updatePersonalInfo, touchField, touchFields, } = useDriverRegistration();
 
   const getFieldError = (field) => (touchedFields[field] ? personalInfoErrors[field] : '');
 
@@ -48,7 +31,7 @@ export default function PersonalInfoScreen({ navigation }) {
     }
   };
 
-  // Maximum date defaults to today minus 18 years, minimum 100 years ago
+  // Maximum date
   const today = new Date();
   const defaultPickerDate = subtractYears(today, MIN_DRIVER_AGE);
   const minimumBirthDate = subtractYears(today, 100);
@@ -76,7 +59,7 @@ export default function PersonalInfoScreen({ navigation }) {
           </Text>
         </View>
 
-        {/* Card section: Profile Photo */}
+        {/* Profile Photo */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Foto de perfil</Text>
           <ImagePickerField
@@ -92,7 +75,7 @@ export default function PersonalInfoScreen({ navigation }) {
           />
         </View>
 
-        {/* Card section: Personal Details */}
+        {/* Personal Details */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Identificación y contacto</Text>
 
@@ -173,7 +156,7 @@ export default function PersonalInfoScreen({ navigation }) {
           />
         </View>
 
-        {/* Next Tab Button */}
+        {/* Next */}
         <Pressable
           style={[styles.nextButton, isPersonalInfoValid && styles.nextButtonValid]}
           onPress={handleNextTab}

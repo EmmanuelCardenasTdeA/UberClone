@@ -1,4 +1,4 @@
-// AI-assisted: see docs/AI_LOG.md #5
+// AI-assisted: see docs/AI_LOG.md #2
 import {
   MAX_PASSENGER_CAPACITY,
   MIN_CAPACITY_BY_CATEGORY,

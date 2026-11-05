@@ -1,9 +1,3 @@
-// AI-assisted: see docs/AI_LOG.md #6
-
-/**
- * Initial (empty) state for each registration tab.
- * Field names are the contract shared by screens, validators, context and services.
- */
 export const initialPersonalInfo = {
   profilePhotoUri: '',
   fullName: '',
@@ -28,11 +22,11 @@ export const initialVehicleInfo = {
 export const initialDocumentsInfo = {
   driverLicenseNumber: '',
   driverLicensePhotoUri: '',
-  driverLicenseExpiryDate: '', // YYYY-MM-DD (after today)
+  driverLicenseExpiryDate: '', // YYYY-MM-DD
   soatPhotoUri: '',
-  soatExpiryDate: '', // YYYY-MM-DD (after today)
+  soatExpiryDate: '', // YYYY-MM-DD
   mechanicalInspectionPhotoUri: '',
-  mechanicalInspectionExpiryDate: '', // YYYY-MM-DD (after today, if applicable by vehicle year)
+  mechanicalInspectionExpiryDate: '', // YYYY-MM-DD
   mercadoPagoEmail: '',
   termsAccepted: false,
 };

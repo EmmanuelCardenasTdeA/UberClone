@@ -1,4 +1,4 @@
-// AI-assisted: see docs/AI_LOG.md #6
+// AI-assisted: see docs/AI_LOG.md #2
 import { MECHANICAL_INSPECTION_MIN_VEHICLE_AGE, MIN_VEHICLE_YEAR } from '../../data/registrationOptions.js';
 import { PLATFORM_COMMISSION_PERCENT } from '../../config/pricing.js';
 import { isDateAfterToday, parseLocalDate } from '../dateUtils.js';

@@ -1,6 +1,3 @@
-// AI-assisted: see docs/AI_LOG.md #6
-
-/** Options for dropdowns. `value` is stored in Firestore (English), `label` is shown in the UI (Spanish). */
 export const GENDER_OPTIONS = [
   { label: 'Masculino', value: 'male' },
   { label: 'Femenino', value: 'female' },
@@ -23,7 +20,7 @@ export const VEHICLE_COLOR_OPTIONS = [
   { label: 'Otro', value: 'other' },
 ];
 
-/** Minimum passengers required per category (cross validation category/capacity). */
+/** Minimum passengers required per category */
 export const MIN_CAPACITY_BY_CATEGORY = {
   economy: 1,
   xl: 6,
@@ -34,13 +31,10 @@ export const MAX_PASSENGER_CAPACITY = 15;
 export const MIN_VEHICLE_YEAR = 1990;
 export const MIN_DRIVER_AGE = 18;
 
-/**
- * In Colombia, private/service vehicles require the first mechanical inspection
- * ("Revisión Técnico-Mecánica") once they reach 5+ years from model year.
- */
+/** A technical-mechanical inspection is only required after 5 years */
 export const MECHANICAL_INSPECTION_MIN_VEHICLE_AGE = 5;
 
-/** Registration status values stored in Firestore and their Spanish labels. */
+/** Registration status */
 export const REGISTRATION_STATUS = {
   DRAFT: 'draft',
   PENDING_APPROVAL: 'pending_approval',
@@ -55,6 +49,6 @@ export const REGISTRATION_STATUS_LABELS = {
   rejected: 'Rechazado',
 };
 
-/** Returns the Spanish label of an option value, or an empty string. */
+/** Returns the Spanish label of an option */
 export const getOptionLabel = (options, value) =>
   options.find((option) => option.value === value)?.label ?? '';

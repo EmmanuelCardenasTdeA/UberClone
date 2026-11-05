@@ -1,4 +1,4 @@
-// AI-assisted: see docs/AI_LOG.md #5
+// AI-assisted: see docs/AI_LOG.md #6
 
 /**
  * When `true`, photos are uploaded to Firebase Storage and Firestore keeps the

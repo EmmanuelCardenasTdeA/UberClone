@@ -1,4 +1,4 @@
-// AI-assisted: see docs/AI_LOG.md #5
+// AI-assisted: see docs/AI_LOG.md #2
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 import { storage } from '../config/firebaseConfig';

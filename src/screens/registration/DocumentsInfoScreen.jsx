@@ -1,14 +1,7 @@
-// AI-assisted: see docs/AI_LOG.md #6
 import React from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+  ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
+  Text, View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,27 +19,9 @@ import { colors, radius, shadows, spacing, typography } from '../../theme';
 
 export default function DocumentsInfoScreen() {
   const insets = useSafeAreaInsets();
-  const {
-    personalInfo,
-    vehicleInfo,
-    documentsInfo,
-    documentsInfoErrors,
-    isPersonalInfoValid,
-    isVehicleInfoValid,
-    isDocumentsInfoValid,
-    requiresMechanicalInspection,
-    touchedFields,
-    updateDocumentsInfo,
-    touchField,
-    touchFields,
-    canSaveDraft,
-    savingAction,
-    saveError,
-    lastSavedAt,
-    driverId,
-    saveDraft,
-    resetRegistration,
-  } = useDriverRegistration();
+  const { personalInfo, vehicleInfo, documentsInfo, documentsInfoErrors, isPersonalInfoValid, isVehicleInfoValid, isDocumentsInfoValid, requiresMechanicalInspection,
+    touchedFields, updateDocumentsInfo, touchField, touchFields, canSaveDraft, savingAction, saveError, lastSavedAt, driverId,
+    saveDraft, resetRegistration } = useDriverRegistration();
 
   const getFieldError = (field) => (touchedFields[field] ? documentsInfoErrors[field] : '');
 
@@ -86,7 +61,7 @@ export default function DocumentsInfoScreen() {
           </Text>
         </View>
 
-        {/* Section 1: Driver License */}
+        {/* License */}
         <View style={styles.card}>
           <View style={styles.sectionHeaderRow}>
             <Ionicons name="card-outline" size={20} color={colors.primary} />
@@ -107,7 +82,7 @@ export default function DocumentsInfoScreen() {
           />
 
           {personalInfo.documentId &&
-          documentsInfo.driverLicenseNumber !== personalInfo.documentId ? (
+            documentsInfo.driverLicenseNumber !== personalInfo.documentId ? (
             <Pressable
               style={styles.quickFillButton}
               onPress={() =>
@@ -147,7 +122,7 @@ export default function DocumentsInfoScreen() {
           />
         </View>
 
-        {/* Section 2: SOAT */}
+        {/* SOAT */}
         <View style={styles.card}>
           <View style={styles.sectionHeaderRow}>
             <Ionicons name="shield-checkmark-outline" size={20} color={colors.primary} />
@@ -180,7 +155,7 @@ export default function DocumentsInfoScreen() {
           />
         </View>
 
-        {/* Section 3: Mechanical Inspection */}
+        {/* Mechanical Inspection */}
         <View style={styles.card}>
           <View style={styles.sectionHeaderRow}>
             <Ionicons name="build-outline" size={20} color={colors.primary} />
@@ -256,7 +231,7 @@ export default function DocumentsInfoScreen() {
           />
         </View>
 
-        {/* Section 4: Payment & Terms */}
+        {/* Payment */}
         <View style={styles.card}>
           <View style={styles.sectionHeaderRow}>
             <Ionicons name="wallet-outline" size={20} color={colors.primary} />
@@ -286,7 +261,7 @@ export default function DocumentsInfoScreen() {
           />
 
           {personalInfo.email &&
-          documentsInfo.mercadoPagoEmail !== personalInfo.email ? (
+            documentsInfo.mercadoPagoEmail !== personalInfo.email ? (
             <Pressable
               style={styles.quickFillButton}
               onPress={() => handleChangeField('mercadoPagoEmail', personalInfo.email)}
@@ -308,7 +283,7 @@ export default function DocumentsInfoScreen() {
           />
         </View>
 
-        {/* Section 5: Global Status Checklist & Draft Save */}
+        {/* Status Checklist & Draft Save */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Resumen del registro</Text>
 

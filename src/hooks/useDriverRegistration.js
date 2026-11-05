@@ -1,4 +1,3 @@
-// AI-assisted: see docs/AI_LOG.md #5
 import { useContext } from 'react';
 
 import { DriverRegistrationContext } from '../context/DriverRegistrationContext';

@@ -1,4 +1,4 @@
-// AI-assisted: see docs/AI_LOG.md #5
+
 import React, { useCallback, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -59,8 +59,7 @@ export default function FormSelect({
 
       <Modal visible={isOpen} transparent animationType="fade" onRequestClose={close}>
         <Pressable style={styles.backdrop} onPress={close}>
-          {/* Inner Pressable stops the backdrop press from closing when tapping the sheet */}
-          <Pressable style={styles.sheet} onPress={() => {}}>
+          <Pressable style={styles.sheet} onPress={() => { }}>
             <Text style={styles.sheetTitle}>{label}</Text>
             <FlatList
               data={options}

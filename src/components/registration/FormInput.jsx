@@ -1,14 +1,9 @@
-// AI-assisted: see docs/AI_LOG.md #5
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import FieldMessage, { FieldLabel } from './FieldMessage';
 import { colors, radius, spacing, typography } from '../../theme';
 
-/**
- * Text input with label and error message below the field.
- * Any extra prop (keyboardType, maxLength, autoCapitalize...) goes to TextInput.
- */
 export default function FormInput({
   label,
   value,

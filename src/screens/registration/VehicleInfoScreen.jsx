@@ -1,22 +1,10 @@
-// AI-assisted: see docs/AI_LOG.md #5
 import React from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import useDriverRegistration from '../../hooks/useDriverRegistration';
-import {
-  VEHICLE_CATEGORY_OPTIONS,
-  VEHICLE_COLOR_OPTIONS,
-} from '../../data/registrationOptions';
+import { VEHICLE_CATEGORY_OPTIONS, VEHICLE_COLOR_OPTIONS } from '../../data/registrationOptions';
 import { VEHICLE_INFO_FIELDS } from '../../data/registrationData';
 import FormInput from '../../components/registration/FormInput';
 import FormSelect from '../../components/registration/FormSelect';
@@ -25,15 +13,7 @@ import { colors, radius, shadows, spacing, typography } from '../../theme';
 
 export default function VehicleInfoScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const {
-    vehicleInfo,
-    vehicleInfoErrors,
-    isVehicleInfoValid,
-    touchedFields,
-    updateVehicleInfo,
-    touchField,
-    touchFields,
-  } = useDriverRegistration();
+  const { vehicleInfo, vehicleInfoErrors, isVehicleInfoValid, touchedFields, updateVehicleInfo, touchField, touchFields } = useDriverRegistration();
 
   const getFieldError = (field) => (touchedFields[field] ? vehicleInfoErrors[field] : '');
 
@@ -45,7 +25,6 @@ export default function VehicleInfoScreen({ navigation }) {
   const handleCategoryChange = (categoryValue) => {
     updateVehicleInfo('category', categoryValue);
     touchField('category');
-    // Touch passengerCapacity if already filled so cross-validation (XL >= 6) is reflected immediately
     if (vehicleInfo.passengerCapacity) {
       touchField('passengerCapacity');
     }
@@ -83,7 +62,7 @@ export default function VehicleInfoScreen({ navigation }) {
           </Text>
         </View>
 
-        {/* Card section: Specifications */}
+        {/* Specifications */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Datos técnicos</Text>
 
@@ -183,7 +162,7 @@ export default function VehicleInfoScreen({ navigation }) {
           />
         </View>
 
-        {/* Card section: Vehicle Photo */}
+        {/* Vehicle Photo */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Fotografía del vehículo</Text>
           <ImagePickerField
@@ -199,7 +178,7 @@ export default function VehicleInfoScreen({ navigation }) {
           />
         </View>
 
-        {/* Next Tab Button */}
+        {/* Next Tab */}
         <Pressable
           style={[styles.nextButton, isVehicleInfoValid && styles.nextButtonValid]}
           onPress={handleNextTab}

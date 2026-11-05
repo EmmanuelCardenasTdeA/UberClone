@@ -1,116 +1,97 @@
-// AI-assisted: see docs/AI_LOG.md #1
-import { GENDER_OPTIONS } from '../../data/registrationOptions.js';
+// AI-assisted: see docs/AI_LOG.md #5
+import { GENDER_OPTIONS, MIN_DRIVER_AGE } from '../../data/registrationOptions.js';
+import { calculateAge, parseLocalDate } from '../dateUtils.js';
+
+// Letters (including Spanish accents, ñ and ü) separated by single spaces.
+const NAME_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$/;
+const ONLY_DIGITS_REGEX = /^\d+$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
+
+const asTrimmedString = (value) => (value ?? '').toString().trim();
 
 /**
- * Calculates age in full years from a date string.
- * @param {string} birthDateString - Date in YYYY-MM-DD or standard ISO format
- * @returns {number | null} Age in years or null if invalid date
- */
-function calculateAge(birthDateString) {
-  if (!birthDateString) return null;
-  const birthDate = new Date(birthDateString);
-  if (Number.isNaN(birthDate.getTime())) return null;
-
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age -= 1;
-  }
-  return age;
-}
-
-/**
- * Validates Tab 1: Personal Information.
+ * Pure validation for Tab 1 (personal info). Messages are in Spanish (UI).
  *
- * Rules:
- * - profilePhotoUri: Mandatory.
- * - fullName: Mandatory, max 50 chars, only letters and spaces (accents/tildes allowed, no numbers or special chars).
- * - documentId: Mandatory, numeric 6 to 10 digits (only 0-9).
- * - phoneNumber: Mandatory, numeric exactly 10 digits (only 0-9).
- * - birthDate: Mandatory, valid date, age must be >= 18.
- * - gender: Mandatory, must match one of GENDER_OPTIONS values.
- * - email: Mandatory, valid format with @ and domain.
+ * - profilePhotoUri: required.
+ * - fullName: required, max 50 chars, letters (with accents) and spaces only.
+ * - documentId: required, digits 0-9 only, 6 to 10 digits.
+ * - phoneNumber: required, digits 0-9 only, exactly 10 digits.
+ * - birthDate: required, valid date, not in the future, 18 years or older.
+ * - gender: required, one of GENDER_OPTIONS.
+ * - email: required, contains @ and a domain.
  *
- * @param {import('../../types/registration').PersonalInfoData} data
+ * @param {Partial<typeof import('../../data/registrationData').initialPersonalInfo>} data
  * @returns {{ isValid: boolean, errors: Record<string, string> }}
  */
 export function validatePersonalInfo(data = {}) {
-  /** @type {Record<string, string>} */
   const errors = {};
 
   // 1. Profile photo
-  if (!data.profilePhotoUri || typeof data.profilePhotoUri !== 'string' || !data.profilePhotoUri.trim()) {
+  if (!asTrimmedString(data.profilePhotoUri)) {
     errors.profilePhotoUri = 'La foto de perfil es obligatoria';
   }
 
-  // 2. Full name (allows letters, spaces, and Spanish accents: á, é, í, ó, ú, ñ, ü)
-  const trimmedName = (data.fullName || '').trim();
-  const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
-
-  if (!trimmedName) {
+  // 2. Full name
+  const fullName = asTrimmedString(data.fullName).replace(/\s+/g, ' ');
+  if (!fullName) {
     errors.fullName = 'El nombre completo es obligatorio';
-  } else if (trimmedName.length > 50) {
+  } else if (fullName.length > 50) {
     errors.fullName = 'El nombre no puede superar los 50 caracteres';
-  } else if (!nameRegex.test(trimmedName)) {
+  } else if (!NAME_REGEX.test(fullName)) {
     errors.fullName = 'El nombre solo puede contener letras y espacios (sin números ni caracteres especiales)';
   }
 
-  // 3. Document ID (only numbers 0-9, 6 to 10 digits)
-  const trimmedDoc = (data.documentId || '').toString().trim();
-  const docRegex = /^\d{6,10}$/;
-
-  if (!trimmedDoc) {
+  // 3. Document ID
+  const documentId = asTrimmedString(data.documentId);
+  if (!documentId) {
     errors.documentId = 'El documento de identidad es obligatorio';
-  } else if (!/^\d+$/.test(trimmedDoc)) {
+  } else if (!ONLY_DIGITS_REGEX.test(documentId)) {
     errors.documentId = 'El documento solo debe contener números (0-9)';
-  } else if (!docRegex.test(trimmedDoc)) {
+  } else if (documentId.length < 6 || documentId.length > 10) {
     errors.documentId = 'El documento debe tener entre 6 y 10 dígitos';
   }
 
-  // 4. Phone number (only numbers 0-9, exactly 10 digits)
-  const trimmedPhone = (data.phoneNumber || '').toString().trim();
-  const phoneRegex = /^\d{10}$/;
-
-  if (!trimmedPhone) {
+  // 4. Phone number
+  const phoneNumber = asTrimmedString(data.phoneNumber);
+  if (!phoneNumber) {
     errors.phoneNumber = 'El número de celular es obligatorio';
-  } else if (!/^\d+$/.test(trimmedPhone)) {
+  } else if (!ONLY_DIGITS_REGEX.test(phoneNumber)) {
     errors.phoneNumber = 'El celular solo debe contener números (0-9)';
-  } else if (!phoneRegex.test(trimmedPhone)) {
+  } else if (phoneNumber.length !== 10) {
     errors.phoneNumber = 'El celular debe tener exactamente 10 dígitos';
   }
 
-  // 5. Birth date (must be 18+ years old)
-  if (!data.birthDate) {
+  // 5. Birth date (18+)
+  const birthDate = asTrimmedString(data.birthDate);
+  if (!birthDate) {
     errors.birthDate = 'La fecha de nacimiento es obligatoria';
+  } else if (!parseLocalDate(birthDate)) {
+    errors.birthDate = 'Selecciona una fecha de nacimiento válida';
   } else {
-    const age = calculateAge(data.birthDate);
-    if (age === null) {
-      errors.birthDate = 'Ingresa una fecha de nacimiento válida (AAAA-MM-DD)';
-    } else if (age < 18) {
-      errors.birthDate = `Debes ser mayor de 18 años para registrarte (edad calculada: ${age} años)`;
+    const age = calculateAge(birthDate);
+    if (age < 0) {
+      errors.birthDate = 'La fecha de nacimiento no puede ser futura';
+    } else if (age < MIN_DRIVER_AGE) {
+      errors.birthDate = `Debes ser mayor de ${MIN_DRIVER_AGE} años para registrarte`;
     } else if (age > 100) {
-      errors.birthDate = 'Ingresa una fecha de nacimiento válida';
+      errors.birthDate = 'Selecciona una fecha de nacimiento válida';
     }
   }
 
-  // 6. Gender dropdown validation
-  const validGenders = GENDER_OPTIONS.map((opt) => opt.value);
+  // 6. Gender (dropdown)
+  const validGenders = GENDER_OPTIONS.map((option) => option.value);
   if (!data.gender) {
-    errors.gender = 'Selecciona tu género de la lista';
+    errors.gender = 'Selecciona tu género';
   } else if (!validGenders.includes(data.gender)) {
     errors.gender = 'El género seleccionado no es válido';
   }
 
-  // 7. Email format
-  const trimmedEmail = (data.email || '').trim();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!trimmedEmail) {
+  // 7. Email
+  const email = asTrimmedString(data.email);
+  if (!email) {
     errors.email = 'El correo electrónico es obligatorio';
-  } else if (!emailRegex.test(trimmedEmail)) {
-    errors.email = 'Ingresa un correo electrónico válido con formato nombre@dominio.com';
+  } else if (!EMAIL_REGEX.test(email)) {
+    errors.email = 'Ingresa un correo válido (ej. nombre@dominio.com)';
   }
 
   return {

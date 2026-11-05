@@ -1,103 +1,106 @@
-// AI-assisted: see docs/AI_LOG.md #1
+// AI-assisted: see docs/AI_LOG.md #5
 import {
+  MAX_PASSENGER_CAPACITY,
+  MIN_CAPACITY_BY_CATEGORY,
+  MIN_VEHICLE_YEAR,
   VEHICLE_CATEGORY_OPTIONS,
   VEHICLE_COLOR_OPTIONS,
 } from '../../data/registrationOptions.js';
 
+// Colombian private vehicle plate: 3 letters + 3 digits (ABC123)
+const PLATE_REGEX = /^[A-Z]{3}\d{3}$/;
+const ONLY_DIGITS_REGEX = /^\d+$/;
+
+const asTrimmedString = (value) => (value ?? '').toString().trim();
+
 /**
- * Validates Tab 2: Vehicle Information.
- * 
- * Rules:
- * - category: Mandatory, must be in VEHICLE_CATEGORY_OPTIONS ('economy' | 'xl' | 'premium').
- * - licensePlate: Mandatory, Colombian format ABC123 (converted to uppercase before validating).
- * - brand: Mandatory, max 30 chars.
- * - model: Mandatory, max 30 chars.
- * - year: Mandatory, 4 numeric digits, not greater than current year.
- * - color: Mandatory, must match one of VEHICLE_COLOR_OPTIONS.
- * - passengerCapacity: Mandatory, numeric. 'xl' category requires at least 6 passengers.
- * - vehiclePhotoUri: Mandatory (must show license plate).
- * 
- * @param {import('../../types/registration').VehicleInfoData} data
+ * Pure validation for Tab 2 (vehicle info). Messages are in Spanish (UI).
+ *
+ * - category: required, one of VEHICLE_CATEGORY_OPTIONS.
+ * - licensePlate: required, converted to uppercase BEFORE validating, format ABC123.
+ * - brand / model: required, max 30 chars each.
+ * - year: required, 4 digits, between MIN_VEHICLE_YEAR and the current year.
+ * - color: required, one of VEHICLE_COLOR_OPTIONS.
+ * - passengerCapacity: required, integer; cross validation with category (xl >= 6).
+ * - vehiclePhotoUri: required (photo where the plate is visible).
+ *
+ * @param {Partial<typeof import('../../data/registrationData').initialVehicleInfo>} data
  * @returns {{ isValid: boolean, errors: Record<string, string> }}
  */
 export function validateVehicleInfo(data = {}) {
-  /** @type {Record<string, string>} */
   const errors = {};
 
-  // 1. Vehicle category dropdown validation
-  const validCategories = VEHICLE_CATEGORY_OPTIONS.map((opt) => opt.value);
+  // 1. Category (dropdown)
+  const validCategories = VEHICLE_CATEGORY_OPTIONS.map((option) => option.value);
   if (!data.category) {
-    errors.category = 'Selecciona una categoría de vehículo';
+    errors.category = 'Selecciona la categoría del vehículo';
   } else if (!validCategories.includes(data.category)) {
-    errors.category = 'La categoría de vehículo seleccionada no es válida';
+    errors.category = 'La categoría seleccionada no es válida';
   }
 
-  // 2. License plate (Colombian format: 3 letters + 3 digits, uppercase)
-  const rawPlate = (data.licensePlate || '').toString().trim().toUpperCase();
-  const plateRegex = /^[A-Z]{3}\d{3}$/;
-
-  if (!rawPlate) {
-    errors.licensePlate = 'La placa del vehículo es obligatoria';
-  } else if (!plateRegex.test(rawPlate)) {
-    errors.licensePlate = 'Formato de placa inválido. Debe tener 3 letras y 3 números (ej. ABC123)';
+  // 2. License plate (uppercase before validating)
+  const licensePlate = asTrimmedString(data.licensePlate).toUpperCase();
+  if (!licensePlate) {
+    errors.licensePlate = 'La placa es obligatoria';
+  } else if (!PLATE_REGEX.test(licensePlate)) {
+    errors.licensePlate = 'La placa debe tener 3 letras y 3 números (ej. ABC123)';
   }
 
-  // 3. Brand (max 30 chars)
-  const trimmedBrand = (data.brand || '').trim();
-  if (!trimmedBrand) {
-    errors.brand = 'La marca del vehículo es obligatoria';
-  } else if (trimmedBrand.length > 30) {
+  // 3. Brand
+  const brand = asTrimmedString(data.brand);
+  if (!brand) {
+    errors.brand = 'La marca es obligatoria';
+  } else if (brand.length > 30) {
     errors.brand = 'La marca no puede superar los 30 caracteres';
   }
 
-  // 4. Model (max 30 chars)
-  const trimmedModel = (data.model || '').trim();
-  if (!trimmedModel) {
-    errors.model = 'El modelo del vehículo es obligatorio';
-  } else if (trimmedModel.length > 30) {
+  // 4. Model
+  const model = asTrimmedString(data.model);
+  if (!model) {
+    errors.model = 'El modelo es obligatorio';
+  } else if (model.length > 30) {
     errors.model = 'El modelo no puede superar los 30 caracteres';
   }
 
-  // 5. Year (4 digits, numeric, <= current year)
+  // 5. Year
   const currentYear = new Date().getFullYear();
-  const rawYear = (data.year || '').toString().trim();
-  const parsedYear = Number.parseInt(rawYear, 10);
-
-  if (!rawYear) {
-    errors.year = 'El año del vehículo es obligatorio';
-  } else if (!/^\d{4}$/.test(rawYear) || Number.isNaN(parsedYear)) {
-    errors.year = 'El año debe ser un número de 4 dígitos (ej. 2022)';
-  } else if (parsedYear > currentYear) {
-    errors.year = `El año no puede ser mayor al año actual (${currentYear})`;
-  } else if (parsedYear < 1990) {
-    errors.year = 'El año del vehículo no es válido para prestar servicio';
+  const yearText = asTrimmedString(data.year);
+  const year = Number(yearText);
+  if (!yearText) {
+    errors.year = 'El año es obligatorio';
+  } else if (!/^\d{4}$/.test(yearText)) {
+    errors.year = 'El año debe tener 4 dígitos (ej. 2022)';
+  } else if (year > currentYear) {
+    errors.year = `El año no puede ser mayor a ${currentYear}`;
+  } else if (year < MIN_VEHICLE_YEAR) {
+    errors.year = `El año debe ser ${MIN_VEHICLE_YEAR} o posterior`;
   }
 
-  // 6. Color dropdown validation
-  const trimmedColor = (data.color || '').trim();
-  if (!trimmedColor) {
+  // 6. Color (dropdown)
+  const validColors = VEHICLE_COLOR_OPTIONS.map((option) => option.value);
+  if (!data.color) {
     errors.color = 'Selecciona el color del vehículo';
-  } else if (!VEHICLE_COLOR_OPTIONS.includes(trimmedColor)) {
-    errors.color = 'El color seleccionado no está dentro de las opciones permitidas';
+  } else if (!validColors.includes(data.color)) {
+    errors.color = 'El color seleccionado no es válido';
   }
 
-  // 7. Passenger capacity (numeric; xl category demands min 6)
-  const rawCapacity = (data.passengerCapacity || '').toString().trim();
-  const parsedCapacity = Number.parseInt(rawCapacity, 10);
-
-  if (!rawCapacity) {
+  // 7. Passenger capacity + cross validation with category
+  const capacityText = asTrimmedString(data.passengerCapacity);
+  const capacity = Number(capacityText);
+  const minCapacity = MIN_CAPACITY_BY_CATEGORY[data.category] ?? 1;
+  if (!capacityText) {
     errors.passengerCapacity = 'La capacidad de pasajeros es obligatoria';
-  } else if (!/^\d+$/.test(rawCapacity) || Number.isNaN(parsedCapacity) || parsedCapacity <= 0) {
+  } else if (!ONLY_DIGITS_REGEX.test(capacityText) || capacity <= 0) {
     errors.passengerCapacity = 'La capacidad debe ser un número entero mayor a 0';
-  } else if (data.category === 'xl' && parsedCapacity < 6) {
-    errors.passengerCapacity = 'La categoría XL exige una capacidad mínima de 6 pasajeros';
-  } else if (parsedCapacity > 15) {
-    errors.passengerCapacity = 'La capacidad no puede ser mayor a 15 pasajeros';
+  } else if (capacity > MAX_PASSENGER_CAPACITY) {
+    errors.passengerCapacity = `La capacidad no puede ser mayor a ${MAX_PASSENGER_CAPACITY} pasajeros`;
+  } else if (capacity < minCapacity) {
+    errors.passengerCapacity = `La categoría XL exige una capacidad mínima de ${minCapacity} pasajeros`;
   }
 
-  // 8. Vehicle photo (where plate is visible)
-  if (!data.vehiclePhotoUri || typeof data.vehiclePhotoUri !== 'string' || !data.vehiclePhotoUri.trim()) {
-    errors.vehiclePhotoUri = 'La foto del vehículo donde se vea la placa es obligatoria';
+  // 8. Vehicle photo
+  if (!asTrimmedString(data.vehiclePhotoUri)) {
+    errors.vehiclePhotoUri = 'La foto del vehículo (con la placa visible) es obligatoria';
   }
 
   return {

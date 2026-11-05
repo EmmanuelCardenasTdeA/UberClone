@@ -1,39 +1,24 @@
-// AI-assisted: see docs/AI_LOG.md #3
+// AI-assisted: see docs/AI_LOG.md #6
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-import { colors, spacing, radius, typography, shadows } from '../theme/theme.js';
-
-// TODO: Import your real screens once created:
-// import PersonalInfoScreen from '../screens/PersonalInfoScreen';
-// import VehicleInfoScreen from '../screens/VehicleInfoScreen';
-// import DocumentsInfoScreen from '../screens/DocumentsInfoScreen';
-// import { useDriverRegistration } from '../context/DriverRegistrationContext';
-
-// Temporary fallback placeholders in case screens are not created yet
-const PlaceholderScreen = ({ title }) => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>{title}</Text>
-  </View>
-);
-
-const PersonalInfoScreen = PlaceholderScreen;
-const VehicleInfoScreen = PlaceholderScreen;
-const DocumentsInfoScreen = PlaceholderScreen;
-
-// Temporary fallback hook if context is not yet wired
-const useDriverRegistrationFallback = () => ({
-  isRegistrationValid: false,
-  isSubmitting: false,
-  submitRegistration: () => {},
-  registrationStatus: 'draft', // or 'pending_approval'
-});
+import useDriverRegistration from '../hooks/useDriverRegistration';
+import PersonalInfoScreen from '../screens/registration/PersonalInfoScreen';
+import VehicleInfoScreen from '../screens/registration/VehicleInfoScreen';
+import DocumentsInfoScreen from '../screens/registration/DocumentsInfoScreen';
+import { colors, radius, shadows, spacing, typography } from '../theme';
 
 const Tab = createBottomTabNavigator();
 
-function TabBarIcon({ routeName, focused, color, size }) {
+function TabBarIcon({ routeName, focused, color, size, isValid }) {
   let iconName = focused ? 'list' : 'list-outline';
 
   if (routeName === 'PersonalInfo') {
@@ -44,17 +29,47 @@ function TabBarIcon({ routeName, focused, color, size }) {
     iconName = focused ? 'document-text' : 'document-text-outline';
   }
 
-  return <Ionicons name={iconName} size={size || 24} color={color || '#000'} />;
+  return (
+    <View style={styles.iconContainer}>
+      <Ionicons name={iconName} size={size || 24} color={color || colors.text} />
+      {isValid ? (
+        <View style={styles.validBadge}>
+          <Ionicons name="checkmark-circle" size={14} color={colors.success} />
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 export default function RegistrationNavigator() {
-  // Use real hook when ready, or fallback
   const {
+    isPersonalInfoValid,
+    isVehicleInfoValid,
+    isDocumentsInfoValid,
     isRegistrationValid,
-    isSubmitting,
+    isSaving,
+    savingAction,
+    saveError,
     submitRegistration,
     registrationStatus,
-  } = useDriverRegistrationFallback();
+    isLoadingSession,
+  } = useDriverRegistration();
+
+  if (isLoadingSession) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Cargando información del conductor...</Text>
+      </View>
+    );
+  }
+
+  const getTabValidity = (routeName) => {
+    if (routeName === 'PersonalInfo') return isPersonalInfoValid;
+    if (routeName === 'VehicleInfo') return isVehicleInfoValid;
+    if (routeName === 'DocumentsInfo') return isDocumentsInfoValid;
+    return false;
+  };
 
   return (
     <View style={styles.container}>
@@ -68,6 +83,7 @@ export default function RegistrationNavigator() {
               focused={focused}
               color={color}
               size={size}
+              isValid={getTabValidity(route.name)}
             />
           ),
           tabBarActiveTintColor: colors.primary,
@@ -104,27 +120,52 @@ export default function RegistrationNavigator() {
 
       {/* Footer "Enviar registro" */}
       <View style={styles.footer}>
-        {registrationStatus === 'pending_approval' ? (
+        {registrationStatus === 'approved' ? (
+          <View style={styles.approvedStatusContainer}>
+            <Ionicons
+              name="checkmark-circle"
+              size={24}
+              color={colors.success}
+              style={styles.pendingIcon}
+            />
+            <View style={styles.pendingTextContainer}>
+              <Text style={styles.approvedTitle}>Estado: Aprobado</Text>
+              <Text style={styles.approvedSubtitle}>
+                Tu cuenta de conductor fue aprobada. Ya puedes conectarte como Disponible.
+              </Text>
+            </View>
+          </View>
+        ) : registrationStatus === 'pending_approval' ? (
           <View style={styles.pendingStatusContainer}>
-            <Ionicons name="time-outline" size={24} color="#92400E" style={styles.pendingIcon} />
+            <Ionicons
+              name="time-outline"
+              size={24}
+              color="#92400E"
+              style={styles.pendingIcon}
+            />
             <View style={styles.pendingTextContainer}>
               <Text style={styles.pendingTitle}>Estado: Pendiente de aprobación</Text>
               <Text style={styles.pendingSubtitle}>
-                Tu registro fue enviado y está siendo revisado por el equipo.
+                Tu registro fue enviado y está siendo revisado. No podrás ponerte Disponible
+                hasta que tu estado cambie a Aprobado en la base de datos.
               </Text>
             </View>
           </View>
         ) : (
           <View>
+            {saveError ? (
+              <Text style={styles.footerErrorText}>{saveError}</Text>
+            ) : null}
+
             <Pressable
               style={[
                 styles.submitButton,
-                (!isRegistrationValid || isSubmitting) && styles.submitButtonDisabled,
+                (!isRegistrationValid || isSaving) && styles.submitButtonDisabled,
               ]}
-              disabled={!isRegistrationValid || isSubmitting}
+              disabled={!isRegistrationValid || isSaving}
               onPress={submitRegistration}
             >
-              {isSubmitting ? (
+              {savingAction === 'submit' ? (
                 <ActivityIndicator color={colors.primaryText} size="small" />
               ) : (
                 <Text
@@ -155,11 +196,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    marginTop: spacing.sm,
+  },
+  iconContainer: {
+    position: 'relative',
+  },
+  validBadge: {
+    position: 'absolute',
+    right: -6,
+    top: -4,
+    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+  },
   tabBar: {
     backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    height: 60,
+    height: 62,
     paddingBottom: 6,
     paddingTop: 6,
     ...shadows.sm,
@@ -174,6 +234,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border,
+  },
+  footerErrorText: {
+    ...typography.caption,
+    color: colors.error,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
   },
   submitButton: {
     backgroundColor: colors.primary,
@@ -211,6 +277,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FDE68A',
   },
+  approvedStatusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.successLight,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: '#A5D6A7',
+  },
   pendingIcon: {
     fontSize: 24,
     marginRight: spacing.sm,
@@ -226,6 +301,16 @@ const styles = StyleSheet.create({
   pendingSubtitle: {
     ...typography.caption,
     color: '#B45309',
+    marginTop: 2,
+  },
+  approvedTitle: {
+    ...typography.label,
+    fontWeight: '700',
+    color: colors.primaryDark,
+  },
+  approvedSubtitle: {
+    ...typography.caption,
+    color: colors.success,
     marginTop: 2,
   },
 });
